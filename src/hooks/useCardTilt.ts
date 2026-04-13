@@ -2,6 +2,11 @@
 
 import { useState, useCallback, useRef, type RefObject, type CSSProperties } from 'react';
 
+interface TiltConfig {
+  maxTilt?: number;
+  scaleHover?: number;
+}
+
 interface CardTiltReturn {
   tiltStyle: CSSProperties;
   shimmerStyle: CSSProperties;
@@ -13,12 +18,16 @@ interface CardTiltReturn {
   };
 }
 
-const MAX_TILT = 8;
-const SCALE_HOVER = 1.04;
 const TRANSITION_IN = 'transform 0.15s ease-out';
 const TRANSITION_OUT = 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)';
 
-export function useCardTilt(cardRef: RefObject<HTMLDivElement | null>): CardTiltReturn {
+export function useCardTilt(
+  cardRef: RefObject<HTMLDivElement | null>,
+  config?: TiltConfig
+): CardTiltReturn {
+  const maxTilt = config?.maxTilt ?? 8;
+  const scaleHover = config?.scaleHover ?? 1.04;
+
   const [isHovering, setIsHovering] = useState(false);
   const [tiltX, setTiltX] = useState(0);
   const [tiltY, setTiltY] = useState(0);
@@ -45,13 +54,13 @@ export function useCardTilt(cardRef: RefObject<HTMLDivElement | null>): CardTilt
       const centerX = x - 0.5;
       const centerY = y - 0.5;
 
-      setTiltX(-centerY * MAX_TILT);
-      setTiltY(centerX * MAX_TILT);
+      setTiltX(-centerY * maxTilt);
+      setTiltY(centerX * maxTilt);
 
       setMouseXPercent(x * 100);
       setMouseYPercent(y * 100);
     });
-  }, [cardRef]);
+  }, [cardRef, maxTilt]);
 
   const onMouseLeave = useCallback(() => {
     setIsHovering(false);
@@ -67,7 +76,7 @@ export function useCardTilt(cardRef: RefObject<HTMLDivElement | null>): CardTilt
   }, []);
 
   const tiltStyle: CSSProperties = {
-    transform: `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(${isHovering ? SCALE_HOVER : 1})`,
+    transform: `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(${isHovering ? scaleHover : 1})`,
     transition: isHovering ? TRANSITION_IN : TRANSITION_OUT,
   };
 
