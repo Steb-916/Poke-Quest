@@ -3,22 +3,53 @@
 import { motion } from 'framer-motion';
 import type { CardMeta } from '@/lib/utils/cardData';
 
-interface CardIdentityProps {
-  card: CardMeta;
+interface PriceData {
+  rawMarket?: number | null;
+  psa10?: number | null;
+  bgs10Pristine?: number | null;
+  bgs10BlackLabel?: number | null;
+  cgc10Perfect?: number | null;
 }
 
-const PLACEHOLDER_PRICES: Record<string, { label: string; value: string; highlight?: boolean }[]> = {
-  default: [
-    { label: 'Raw NM', value: '$—' },
-    { label: 'PSA 10', value: '$—' },
-    { label: 'BGS 10', value: '$—' },
-    { label: 'Black Label', value: '$—', highlight: true },
-    { label: 'CGC 10', value: '$—' },
-  ],
-};
+interface OwnershipData {
+  acquired: boolean;
+  condition?: string;
+  grade?: string | null;
+  labelType?: string | null;
+}
 
-export function CardIdentity({ card }: CardIdentityProps) {
-  const prices = PLACEHOLDER_PRICES.default;
+interface CardIdentityProps {
+  card: CardMeta;
+  prices?: PriceData | null;
+  ownership?: OwnershipData | null;
+}
+
+function formatPrice(value: number | null | undefined): string {
+  if (value == null) return '$—';
+  if (value >= 1000) return `$${Math.round(value).toLocaleString()}`;
+  return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export function CardIdentity({ card, prices, ownership }: CardIdentityProps) {
+  const priceRows = [
+    { label: 'Raw NM', value: formatPrice(prices?.rawMarket) },
+    { label: 'PSA 10', value: formatPrice(prices?.psa10) },
+    { label: 'BGS 10', value: formatPrice(prices?.bgs10Pristine) },
+    { label: 'Black Label', value: formatPrice(prices?.bgs10BlackLabel), highlight: true },
+    { label: 'CGC 10', value: formatPrice(prices?.cgc10Perfect) },
+  ];
+
+  const huntText = ownership?.acquired
+    ? ownership.labelType === 'Black'
+      ? 'Black Label Acquired'
+      : `Owned: ${ownership.condition || ''} ${ownership.grade || ''}`.trim()
+    : 'Hunting Black Label';
+
+  const huntSubtext = ownership?.acquired
+    ? ownership.labelType === 'Black'
+      ? 'Quest complete for this card'
+      : 'Upgrade to Black Label'
+    : 'Not yet acquired';
 
   return (
     <motion.div
@@ -27,23 +58,19 @@ export function CardIdentity({ card }: CardIdentityProps) {
       transition={{ duration: 0.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
       className="flex flex-col gap-6"
     >
-      {/* Card Name */}
       <h1 className="font-[var(--font-display)] text-3xl font-bold text-[var(--color-accent)]">
         {card.name}
       </h1>
 
-      {/* Set & Number */}
       <p className="text-[var(--color-text-secondary)]">
         {card.set} &middot;{' '}
         <span className="font-[var(--font-mono)]">{card.cardNumber}</span>
       </p>
 
-      {/* Illustrator */}
       <p className="text-sm text-[var(--color-text-tertiary)]">
         Illustrated by {card.illustrator}
       </p>
 
-      {/* Attribute Pills */}
       <div className="flex gap-2">
         {[card.typing, card.stage, `${card.hp} HP`].map((attr) => (
           <span
@@ -55,13 +82,12 @@ export function CardIdentity({ card }: CardIdentityProps) {
         ))}
       </div>
 
-      {/* Market Snapshot */}
       <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-tertiary)] p-4">
         <h3 className="text-sm font-medium text-[var(--color-text-secondary)] tracking-wide mb-3">
           Current Market
         </h3>
         <div className="space-y-2">
-          {prices.map(({ label, value, highlight }) => (
+          {priceRows.map(({ label, value, highlight }) => (
             <div
               key={label}
               className={`flex items-center justify-between py-1 ${
@@ -77,12 +103,11 @@ export function CardIdentity({ card }: CardIdentityProps) {
         </div>
       </div>
 
-      {/* Hunt Status */}
       <div className="flex items-center gap-3">
         <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
         <div>
-          <p className="text-sm text-[var(--color-text-primary)]">Hunting Black Label</p>
-          <p className="text-xs text-[var(--color-text-tertiary)]">Not yet acquired</p>
+          <p className="text-sm text-[var(--color-text-primary)]">{huntText}</p>
+          <p className="text-xs text-[var(--color-text-tertiary)]">{huntSubtext}</p>
         </div>
       </div>
     </motion.div>

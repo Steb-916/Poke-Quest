@@ -77,9 +77,21 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
 
 interface PriceHistoryProps {
   card: CardMeta;
+  dbData?: Record<string, unknown>[];
 }
 
-export function PriceHistory({ card: _card }: PriceHistoryProps) {
+export function PriceHistory({ card: _card, dbData }: PriceHistoryProps) {
+  // Show empty state if dbData is explicitly an empty array
+  if (dbData && dbData.length === 0) {
+    return (
+      <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-tertiary)] p-8 min-h-[300px] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-sm text-[var(--color-text-secondary)]">No price data yet.</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] mt-1">Data populates automatically via daily sync.</p>
+        </div>
+      </div>
+    );
+  }
   const [timeRange, setTimeRange] = useState('1Y');
   const [visibleSeries, setVisibleSeries] = useState<Set<string>>(
     new Set(SERIES.filter((s) => s.defaultVisible).map((s) => s.key))

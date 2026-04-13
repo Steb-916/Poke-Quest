@@ -154,3 +154,19 @@ model Ownership {
 
   @@index([cardId])
 }
+
+// ─────────────────────────────────────────────
+// API USAGE TRACKING
+// ─────────────────────────────────────────────
+
+model ApiUsage {
+  id          String   @id @default(cuid())
+  service     String                      // "pokemontcg" | "pricetracker" | "soldcomps"
+  endpoint    String                      // The specific endpoint called
+  date        DateTime @default(now())    // When the call was made
+  creditsUsed Int      @default(1)        // How many credits this call consumed
+  success     Boolean  @default(true)     // Did it succeed?
+  responseMs  Int?                        // Response time in ms
+
+  @@index([service, date])
+}

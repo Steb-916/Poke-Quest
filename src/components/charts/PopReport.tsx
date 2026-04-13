@@ -66,9 +66,20 @@ const MOCK_BLACK_LABEL = {
 
 interface PopReportProps {
   card: CardMeta;
+  dbData?: Record<string, unknown>[];
 }
 
-export function PopReport({ card: _card }: PopReportProps) {
+export function PopReport({ card: _card, dbData }: PopReportProps) {
+  if (dbData && dbData.length === 0) {
+    return (
+      <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-tertiary)] p-8 min-h-[200px] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-sm text-[var(--color-text-secondary)]">No population data yet.</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] mt-1">Enter data manually or wait for weekly sync.</p>
+        </div>
+      </div>
+    );
+  }
   const maxTotal = Math.max(...MOCK_POP.map((g) => g.total));
 
   return (

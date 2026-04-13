@@ -39,9 +39,18 @@ const GRADE_FILTERS = ['All', '10+', '9-9.5', '<9'] as const;
 
 interface RecentSalesProps {
   card: CardMeta;
+  dbData?: Record<string, unknown>[];
 }
 
-export function RecentSales({ card: _card }: RecentSalesProps) {
+export function RecentSales({ card: _card, dbData }: RecentSalesProps) {
+  if (dbData && dbData.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-sm text-[var(--color-text-secondary)]">No recorded sales.</p>
+        <p className="text-xs text-[var(--color-text-tertiary)] mt-1">Sales data syncs bi-weekly from eBay.</p>
+      </div>
+    );
+  }
   const [graderFilter, setGraderFilter] = useState<string>('All');
   const [gradeFilter, setGradeFilter] = useState<string>('All');
 

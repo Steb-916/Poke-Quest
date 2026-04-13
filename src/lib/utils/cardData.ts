@@ -72,6 +72,7 @@ export const CARDS: CardMeta[] = [
     stage: 'VMAX',
     displayOrder: 3,
     accentColor: 'var(--card-deoxys)',
+    ...buildImageUrls('swsh12pt5gg', 'GG45/GG70'),
   },
   {
     slug: 'gengar-vmax-271',
@@ -87,6 +88,7 @@ export const CARDS: CardMeta[] = [
     stage: 'VMAX',
     displayOrder: 4,
     accentColor: 'var(--card-gengar)',
+    ...buildImageUrls('swsh8', '271/264'),
   },
   {
     slug: 'giratina-v-186',
@@ -102,6 +104,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 5,
     accentColor: 'var(--card-giratina)',
+    ...buildImageUrls('swsh11', '186/196'),
   },
   {
     slug: 'aerodactyl-v-180',
@@ -117,6 +120,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 6,
     accentColor: 'var(--card-aerodactyl)',
+    ...buildImageUrls('swsh11', '180/196'),
   },
   {
     slug: 'dragonite-v-192',
@@ -132,6 +136,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 7,
     accentColor: 'var(--card-dragonite)',
+    ...buildImageUrls('swsh7', '192/203'),
   },
   {
     slug: 'espeon-v-180',
@@ -147,6 +152,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 8,
     accentColor: 'var(--card-espeon)',
+    ...buildImageUrls('swsh7', '180/203'),
   },
   {
     slug: 'machamp-v-172',
@@ -162,6 +168,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 9,
     accentColor: 'var(--card-machamp)',
+    ...buildImageUrls('swsh10', '172/189'),
   },
   {
     slug: 'tyranitar-v-155',
@@ -177,6 +184,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 10,
     accentColor: 'var(--card-tyranitar)',
+    ...buildImageUrls('swsh5', '155/163'),
   },
   {
     slug: 'charizard-v-154',
@@ -192,6 +200,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 11,
     accentColor: 'var(--card-charizard)',
+    ...buildImageUrls('swsh9', '154/172'),
   },
   {
     slug: 'starmie-v-tg13',
@@ -207,6 +216,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 12,
     accentColor: 'var(--card-starmie)',
+    ...buildImageUrls('swsh10tg', 'TG13/TG30'),
   },
   {
     slug: 'celebi-v-245',
@@ -222,6 +232,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 13,
     accentColor: 'var(--card-celebi)',
+    ...buildImageUrls('swsh8', '245/264'),
   },
   {
     slug: 'galarian-slowking-v-179',
@@ -237,6 +248,7 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 14,
     accentColor: 'var(--card-slowking)',
+    ...buildImageUrls('swsh6', '179/198'),
   },
   {
     slug: 'beedrill-v-161',
@@ -252,5 +264,6 @@ export const CARDS: CardMeta[] = [
     stage: 'V',
     displayOrder: 15,
     accentColor: 'var(--card-beedrill)',
+    ...buildImageUrls('swsh10', '161/189'),
   },
 ];

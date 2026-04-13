@@ -9,6 +9,31 @@ interface CardPageProps {
   params: Promise<{ slug: string }>;
 }
 
+async function getCardData(slug: string) {
+  try {
+    const { getCardBySlug, getLatestPrices, getLatestPop, getRecentSales, getPriceHistory } = await import('@/lib/db/queries');
+    const dbCard = await getCardBySlug(slug);
+    if (!dbCard) return null;
+
+    const [latestPrices, priceHistory, popData, recentSales] = await Promise.all([
+      getLatestPrices(dbCard.id),
+      getPriceHistory(dbCard.id),
+      getLatestPop(dbCard.id),
+      getRecentSales(dbCard.id),
+    ]);
+
+    return {
+      prices: latestPrices,
+      priceHistory: priceHistory as Record<string, unknown>[],
+      popData: popData as Record<string, unknown>[],
+      recentSales: recentSales as Record<string, unknown>[],
+      ownership: dbCard.ownership?.[0] ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default async function CardPage({ params }: CardPageProps) {
   const { slug } = await params;
   const card = CARDS.find((c) => c.slug === slug);
@@ -17,7 +42,7 @@ export default async function CardPage({ params }: CardPageProps) {
     notFound();
   }
 
-  // Derive the CSS variable name for this card's pokemon
+  const dbData = await getCardData(slug);
   const pokemonKey = card.pokemon.toLowerCase().replace('galarian ', '');
 
   return (
@@ -44,13 +69,27 @@ export default async function CardPage({ params }: CardPageProps) {
       <div className="mx-auto max-w-[1200px] px-8 py-8">
         <div className="hero-grid">
           <SlabViewer card={card} />
-          <CardIdentity card={card} />
+          <CardIdentity
+            card={card}
+            prices={dbData?.prices}
+            ownership={dbData?.ownership ? {
+              acquired: dbData.ownership.acquired,
+              condition: dbData.ownership.condition,
+              grade: dbData.ownership.grade,
+              labelType: dbData.ownership.labelType,
+            } : null}
+          />
         </div>
       </div>
 
       {/* Data Panels */}
       <div className="mx-auto max-w-[1200px] px-8 pb-16">
-        <DataPanels card={card} />
+        <DataPanels
+          card={card}
+          priceHistory={dbData?.priceHistory}
+          popData={dbData?.popData}
+          recentSales={dbData?.recentSales}
+        />
       </div>
     </div>
   );

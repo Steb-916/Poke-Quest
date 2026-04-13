@@ -18,9 +18,12 @@ type TabId = (typeof TABS)[number]['id'];
 
 interface DataPanelsProps {
   card: CardMeta;
+  priceHistory?: Record<string, unknown>[];
+  popData?: Record<string, unknown>[];
+  recentSales?: Record<string, unknown>[];
 }
 
-export function DataPanels({ card }: DataPanelsProps) {
+export function DataPanels({ card, priceHistory, popData, recentSales }: DataPanelsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('price');
 
   return (
@@ -63,9 +66,9 @@ export function DataPanels({ card }: DataPanelsProps) {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         >
-          {activeTab === 'price' && <PriceHistory card={card} />}
-          {activeTab === 'pop' && <PopReport card={card} />}
-          {activeTab === 'sales' && <RecentSales card={card} />}
+          {activeTab === 'price' && <PriceHistory card={card} dbData={priceHistory} />}
+          {activeTab === 'pop' && <PopReport card={card} dbData={popData} />}
+          {activeTab === 'sales' && <RecentSales card={card} dbData={recentSales} />}
         </motion.div>
       </AnimatePresence>
     </motion.div>

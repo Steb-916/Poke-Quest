@@ -1,15 +1,45 @@
 import { CARDS } from '@/lib/utils/cardData';
-import { MOCK_HUNT_STATUS } from '@/lib/utils/mockHuntData';
+import { MOCK_HUNT_STATUS, type MockOwnership } from '@/lib/utils/mockHuntData';
 import { HuntPageClient } from '@/components/hunt/HuntPageClient';
 
-export default function HuntPage() {
-  // Sort cards by hunt priority:
-  // 1. Black Label acquired (trophies)
-  // 2. Owned, not BL (progress)
-  // 3. Not owned, sorted by BL pop ascending (rarest first), then displayOrder
+async function getHuntData(): Promise<{ huntStatus: MockOwnership[]; blAcquired: number }> {
+  try {
+    const { getAllOwnership } = await import('@/lib/db/queries');
+    const ownership = await getAllOwnership();
+
+    if (ownership.length > 0) {
+      const huntStatus: MockOwnership[] = CARDS.map((card) => {
+        const own = ownership.find((o) => o.card.slug === card.slug);
+        return {
+          slug: card.slug,
+          acquired: own?.acquired ?? false,
+          isBlackLabel: own?.labelType === 'Black' && own?.acquired === true,
+          bestGrade: own?.grade ?? undefined,
+          bestGrader: own?.condition ?? undefined,
+          purchaseDate: own?.purchaseDate?.toISOString().split('T')[0] ?? undefined,
+          blPop: 0, // Would come from pop snapshots
+        };
+      });
+
+      const blAcquired = huntStatus.filter((s) => s.isBlackLabel).length;
+      return { huntStatus, blAcquired };
+    }
+  } catch {
+    // DB not connected — fall through to mock data
+  }
+
+  return {
+    huntStatus: MOCK_HUNT_STATUS,
+    blAcquired: MOCK_HUNT_STATUS.filter((s) => s.isBlackLabel).length,
+  };
+}
+
+export default async function HuntPage() {
+  const { huntStatus, blAcquired } = await getHuntData();
+
   const sortedCards = [...CARDS].sort((a, b) => {
-    const statusA = MOCK_HUNT_STATUS.find((s) => s.slug === a.slug);
-    const statusB = MOCK_HUNT_STATUS.find((s) => s.slug === b.slug);
+    const statusA = huntStatus.find((s) => s.slug === a.slug);
+    const statusB = huntStatus.find((s) => s.slug === b.slug);
     if (!statusA || !statusB) return 0;
 
     const priorityA = statusA.isBlackLabel ? 0 : statusA.acquired ? 1 : 2;
@@ -22,11 +52,8 @@ export default function HuntPage() {
     return a.displayOrder - b.displayOrder;
   });
 
-  const blAcquired = MOCK_HUNT_STATUS.filter((s) => s.isBlackLabel).length;
-
-  // Find next target: lowest BL pop among unowned BLs
-  const hunting = MOCK_HUNT_STATUS.filter((s) => !s.isBlackLabel);
-  const nextTargetStatus = hunting.sort((a, b) => a.blPop - b.blPop)[0];
+  const hunting = huntStatus.filter((s) => !s.isBlackLabel);
+  const nextTargetStatus = [...hunting].sort((a, b) => a.blPop - b.blPop)[0];
   const nextTarget = nextTargetStatus
     ? CARDS.find((c) => c.slug === nextTargetStatus.slug)?.name || 'Unknown'
     : 'All acquired!';
@@ -34,7 +61,7 @@ export default function HuntPage() {
   return (
     <HuntPageClient
       sortedCards={sortedCards}
-      huntStatus={MOCK_HUNT_STATUS}
+      huntStatus={huntStatus}
       blAcquired={blAcquired}
       nextTarget={nextTarget}
     />
