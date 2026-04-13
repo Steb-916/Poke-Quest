@@ -56,6 +56,7 @@ export const CARDS: CardMeta[] = [
     stage: 'VMAX',
     displayOrder: 2,
     accentColor: 'var(--card-rayquaza)',
+    ...buildImageUrls('swsh7', '218/203'),
   },
   {
     slug: 'deoxys-vmax-gg45',
