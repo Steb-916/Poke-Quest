@@ -78,3 +78,31 @@
     --font-mono: 'JetBrains Mono', monospace;
   }
 }
+
+@layer components {
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .hunt-hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .hunt-hero {
+      grid-template-columns: auto 1fr;
+    }
+  }
+}

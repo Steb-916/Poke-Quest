@@ -12,6 +12,17 @@ export interface CardMeta {
   stage: string;
   displayOrder: number;
   accentColor: string;
+  imageUrl: string;
+  imageUrlSmall: string;
+  tcgplayerId?: string;
+}
+
+function buildImageUrls(setCode: string, cardNumber: string) {
+  const num = cardNumber.split('/')[0];
+  return {
+    imageUrl: `https://images.pokemontcg.io/${setCode}/${num}_hires.png`,
+    imageUrlSmall: `https://images.pokemontcg.io/${setCode}/${num}.png`,
+  };
 }
 
 export const CARDS: CardMeta[] = [
@@ -29,6 +40,7 @@ export const CARDS: CardMeta[] = [
     stage: 'VMAX',
     displayOrder: 1,
     accentColor: 'var(--card-umbreon)',
+    ...buildImageUrls('swsh7', '215/203'),
   },
   {
     slug: 'rayquaza-vmax-218',
