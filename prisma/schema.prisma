@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// CARD IDENTITY
+// ─────────────────────────────────────────────
+
+model Card {
+  id              String    @id @default(cuid())
+  slug            String    @unique          // URL-friendly identifier: "umbreon-vmax-215"
+  name            String                      // "Umbreon VMAX"
+  pokemon         String                      // "Umbreon"
+  set             String                      // "Evolving Skies"
+  setCode         String                      // "swsh7" (pokemontcg.io set ID)
+  cardNumber      String                      // "215/203"
+  artType         String                      // "Alternate Art Secret"
+  illustrator     String                      // "Keiichiro Ito"
+  hp              Int                         // 310
+  typing          String                      // "Dark"
+  stage           String                      // "VMAX"
+  era             String    @default("SWSH")  // Always "SWSH" for this collection
+  imageUrl        String                      // High-res card art URL
+  imageUrlSmall   String                      // Thumbnail URL
+  tcgplayerId     String?                     // TCGPlayer product ID for API lookups
+  displayOrder    Int                         // 1-15, controls sort order in UI
+
+  // Relationships
+  prices          PriceSnapshot[]
+  popSnapshots    PopSnapshot[]
+  gradedSales     GradedSale[]
+  ownership       Ownership[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// PRICE TRACKING (time series)
+// ─────────────────────────────────────────────
+
+model PriceSnapshot {
+  id              String    @id @default(cuid())
+  cardId          String
+  card            Card      @relation(fields: [cardId], references: [id])
+
+  date            DateTime  @default(now())   // Snapshot date
+  source          String                      // "tcgplayer" | "cardmarket" | "ebay"
+
+  // Raw (ungraded) prices
+  rawLow          Float?                      // Lowest NM listing
+  rawMid          Float?                      // Mid-market price
+  rawHigh         Float?                      // Highest listing
+  rawMarket       Float?                      // TCGPlayer market price
+
+  // Graded prices (nullable — not all sources have all grades)
+  psa10           Float?
+  psa9            Float?
+  bgs10Pristine   Float?                      // BGS 10 Gold Label (Pristine)
+  bgs10BlackLabel Float?                      // BGS 10 Black Label
+  bgs95           Float?                      // BGS 9.5 Gem Mint
+  cgc10Perfect    Float?                      // CGC 10 Perfect
+  cgc10Pristine   Float?                      // CGC 10 Pristine
+  cgc95           Float?                      // CGC 9.5
+
+  createdAt       DateTime  @default(now())
+
+  @@index([cardId, date])
+  @@index([cardId, source, date])
+}
+
+// ─────────────────────────────────────────────
+// POPULATION REPORTS (time series)
+// ─────────────────────────────────────────────
+
+model PopSnapshot {
+  id              String    @id @default(cuid())
+  cardId          String
+  card            Card      @relation(fields: [cardId], references: [id])
+
+  date            DateTime  @default(now())   // Snapshot date
+  grader          String                      // "PSA" | "BGS" | "CGC" | "SGC"
+  language        String    @default("English")
+
+  // Full grade distribution
+  total           Int       @default(0)       // Total graded by this company
+  grade10         Int       @default(0)       // Top grade (PSA 10 / BGS 10 Pristine / CGC 10)
+  blackLabel      Int       @default(0)       // BGS Black Label ONLY (all four subgrades = 10)
+  grade95         Int       @default(0)       // 9.5
+  grade9          Int       @default(0)       // 9
+  grade85         Int       @default(0)       // 8.5
+  grade8          Int       @default(0)       // 8
+  grade7AndBelow  Int       @default(0)       // 7 and below (combined)
+  authentic       Int       @default(0)       // Authentic/Altered (no numeric grade)
+
+  createdAt       DateTime  @default(now())
+
+  @@index([cardId, grader, date])
+  @@unique([cardId, grader, date, language])
+}
+
+// ─────────────────────────────────────────────
+// GRADED SALES (individual transactions)
+// ─────────────────────────────────────────────
+
+model GradedSale {
+  id              String    @id @default(cuid())
+  cardId          String
+  card            Card      @relation(fields: [cardId], references: [id])
+
+  date            DateTime                    // Date of sale
+  platform        String                      // "ebay" | "fanatics" | "whatnot" | "pwcc"
+  grader          String                      // "PSA" | "BGS" | "CGC" | "SGC" | "RAW"
+  grade           String                      // "10" | "Black Label" | "9.5" | "9" | "Pristine" etc.
+  price           Float                       // Sale price in USD
+  shippingCost    Float?                      // Shipping if known
+  listingUrl      String?                     // Link to the sold listing
+  notes           String?                     // Any manual notes
+
+  createdAt       DateTime  @default(now())
+
+  @@index([cardId, date])
+  @@index([cardId, grader, grade])
+}
+
+// ─────────────────────────────────────────────
+// OWNERSHIP / HUNT TRACKER
+// ─────────────────────────────────────────────
+
+model Ownership {
+  id              String    @id @default(cuid())
+  cardId          String
+  card            Card      @relation(fields: [cardId], references: [id])
+
+  condition       String                      // "RAW" | "PSA" | "BGS" | "CGC" | "SGC"
+  grade           String?                     // "10" | "Black Label" | "9.5" etc. (null if RAW)
+  labelType       String?                     // "Gold" | "Black" | "Silver" (BGS only)
+  certNumber      String?                     // Grading company cert number
+  purchasePrice   Float?                      // What you paid
+  purchaseDate    DateTime?                   // When you bought it
+  purchaseSource  String?                     // Where you bought it
+  isTarget        Boolean   @default(false)   // Is this the Black Label you're hunting?
+  acquired        Boolean   @default(false)   // Do you physically have this?
+  notes           String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([cardId])
+}

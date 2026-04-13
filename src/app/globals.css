@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* ── Base (Dark Vault) ── */
+    --color-bg-primary: #06060b;
+    --color-bg-secondary: #0c0c14;
+    --color-bg-tertiary: #12121e;
+    --color-bg-hover: #1a1a2e;
+
+    /* ── Text ── */
+    --color-text-primary: #e8e6e3;
+    --color-text-secondary: #8a8a9a;
+    --color-text-tertiary: #4a4a5a;
+
+    /* ── Borders ── */
+    --color-border-default: #1e1e2e;
+    --color-border-hover: #2e2e42;
+    --color-border-active: #3e3e56;
+
+    /* ── Accent (default — overridden per card) ── */
+    --color-accent: #c9a84c;
+    --color-accent-dim: #c9a84c33;
+    --color-accent-glow: #c9a84c55;
+
+    /* ── Semantic ── */
+    --color-positive: #34d399;
+    --color-negative: #f87171;
+    --color-warning: #fbbf24;
+
+    /* ── Grader Brand Colors ── */
+    --color-psa: #d32f2f;
+    --color-bgs-gold: #c9a84c;
+    --color-bgs-black: #1a1a1a;
+    --color-bgs-silver: #8a8a8a;
+    --color-cgc: #1565c0;
+    --color-sgc: #2e7d32;
+
+    /* ── Card-Specific Accents ── */
+    --card-umbreon: #8b5cf6;
+    --card-rayquaza: #22c55e;
+    --card-charizard: #f97316;
+    --card-gengar: #7c3aed;
+    --card-giratina: #6366f1;
+    --card-espeon: #ec4899;
+    --card-dragonite: #f59e0b;
+    --card-deoxys: #06b6d4;
+    --card-aerodactyl: #78716c;
+    --card-machamp: #a3a3a3;
+    --card-tyranitar: #65a30d;
+    --card-starmie: #a855f7;
+    --card-celebi: #4ade80;
+    --card-slowking: #f472b6;
+    --card-beedrill: #eab308;
+
+    /* ── Spacing Scale ── */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    --space-3xl: 64px;
+    --space-4xl: 96px;
+
+    /* ── Animation Timing ── */
+    --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+    --duration-page: 700ms;
+
+    /* ── Typography Scale ── */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+}
