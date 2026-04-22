@@ -1,6 +1,12 @@
+import type { Metadata } from 'next';
 import { CARDS } from '@/lib/utils/cardData';
 import { MOCK_HUNT_STATUS, type MockOwnership } from '@/lib/utils/mockHuntData';
 import { HuntPageClient } from '@/components/hunt/HuntPageClient';
+
+export const metadata: Metadata = {
+  title: 'The Hunt — Black Label Quest',
+  description: 'Tracking progress toward BGS Black Label 10 of all 15 SWSH alt art cards.',
+};
 
 async function getHuntData(): Promise<{ huntStatus: MockOwnership[]; blAcquired: number }> {
   try {

@@ -34,7 +34,7 @@ export function HuntCard({ card, status, index, onEdit }: HuntCardProps) {
         <div
           className={cn(
             'relative rounded-xl overflow-hidden transition-all duration-300 group',
-            state === 'acquired' && 'ring-2 ring-[var(--color-bgs-gold)] shadow-[0_0_20px_rgba(201,168,76,0.3)]',
+            state === 'acquired' && 'ring-2 ring-[var(--color-bgs-gold)] glow-pulse',
             state === 'owned' && 'border border-[var(--color-border-hover)]',
             state === 'hunting' && 'border border-dashed border-[var(--color-border-default)]',
           )}

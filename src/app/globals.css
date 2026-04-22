@@ -79,30 +79,107 @@
   }
 }
 
-@layer components {
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 48px;
-    align-items: start;
-  }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
 
-  @media (min-width: 1024px) {
-    .hero-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
 
-  .hunt-hero {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 48px;
-    align-items: center;
-  }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-hover);
+  border-radius: 4px;
+}
 
-  @media (min-width: 1024px) {
-    .hunt-hero {
-      grid-template-columns: auto 1fr;
-    }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-dim);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── Press Scale — buttons, pills, tabs ── */
+.press-scale {
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.press-scale:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.press-scale:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: none;
+  transition-duration: 50ms;
+}
+
+/* ── Hover Lift — cards, panels ── */
+.hover-lift {
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Glow Pulse — acquired hunt cards ── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--color-accent-glow); }
+  50% { box-shadow: 0 0 16px var(--color-accent-glow), 0 0 32px var(--color-accent-dim); }
+}
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* ── Card Entrance Fallback (CSS safety net for fast scroll) ── */
+@keyframes card-entrance-fallback {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-entrance-fallback {
+  opacity: 0;
+  animation: card-entrance-fallback 0.5s ease-out forwards;
+  animation-delay: var(--entrance-delay, 0s);
+}
+
+/* ── Skeleton pulse override ── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.15; }
+}
+
+/* ── Scrollbar Hide — for horizontal scroll containers on mobile ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Reduced motion — disable all custom animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .press-scale, .hover-lift {
+    transition: none !important;
+    transform: none !important;
+  }
+  .glow-pulse {
+    animation: none !important;
+  }
+  .card-entrance-fallback {
+    opacity: 1 !important;
+    animation: none !important;
   }
 }

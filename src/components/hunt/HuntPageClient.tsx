@@ -36,7 +36,7 @@ export function HuntPageClient({ sortedCards, huntStatus, blAcquired, nextTarget
         </motion.div>
 
         {/* Hero: Progress Ring + Stats */}
-        <div className="hunt-hero mb-12">
+        <div className="hunt-hero-grid mb-12">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -72,6 +72,21 @@ export function HuntPageClient({ sortedCards, huntStatus, blAcquired, nextTarget
           })}
         </div>
       </div>
+
+      {/* Inline critical CSS for hunt hero grid */}
+      <style>{`
+        .hunt-hero-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 48px;
+          align-items: center;
+        }
+        @media (min-width: 1024px) {
+          .hunt-hero-grid {
+            grid-template-columns: auto 1fr;
+          }
+        }
+      `}</style>
 
       {/* Ownership Drawer */}
       <AnimatePresence>

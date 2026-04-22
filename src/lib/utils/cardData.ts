@@ -14,7 +14,6 @@ export interface CardMeta {
   accentColor: string;
   imageUrl: string;
   imageUrlSmall: string;
-  tcgplayerId?: string;
 }
 
 function buildImageUrls(setCode: string, cardNumber: string) {

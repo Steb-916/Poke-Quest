@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import type { CardMeta } from '@/lib/utils/cardData';
+import type { VelocityResult } from '@/lib/utils/calculations';
+import { VelocityIndicator } from './VelocityIndicator';
 import { cn } from '@/lib/utils/cn';
 
 interface Sale {
@@ -21,28 +23,16 @@ const GRADER_COLORS: Record<string, string> = {
   RAW: 'var(--color-text-tertiary)',
 };
 
-const MOCK_SALES: Sale[] = [
-  { date: 'Mar 15, 2026', platform: 'eBay', grader: 'PSA', grade: '10', price: 2850, link: '#' },
-  { date: 'Mar 12, 2026', platform: 'eBay', grader: 'BGS', grade: '9.5', price: 1920, link: '#' },
-  { date: 'Mar 8, 2026', platform: 'Fanatics', grader: 'BGS', grade: 'Black Label', price: 33600, link: '#' },
-  { date: 'Feb 28, 2026', platform: 'eBay', grader: 'CGC', grade: '10', price: 2100, link: '#' },
-  { date: 'Feb 22, 2026', platform: 'eBay', grader: 'RAW', grade: 'NM', price: 1055, link: '#' },
-  { date: 'Feb 15, 2026', platform: 'eBay', grader: 'PSA', grade: '9', price: 850, link: '#' },
-  { date: 'Feb 10, 2026', platform: 'Whatnot', grader: 'PSA', grade: '10', price: 2780, link: '#' },
-  { date: 'Feb 5, 2026', platform: 'eBay', grader: 'BGS', grade: '10', price: 3200, link: '#' },
-  { date: 'Jan 28, 2026', platform: 'PWCC', grader: 'PSA', grade: '10', price: 2900, link: '#' },
-  { date: 'Jan 20, 2026', platform: 'eBay', grader: 'SGC', grade: '10', price: 1800, link: '#' },
-];
-
 const GRADER_FILTERS = ['All', 'PSA', 'BGS', 'CGC', 'SGC'] as const;
 const GRADE_FILTERS = ['All', '10+', '9-9.5', '<9'] as const;
 
 interface RecentSalesProps {
   card: CardMeta;
   dbData?: Record<string, unknown>[];
+  velocity?: VelocityResult | null;
 }
 
-export function RecentSales({ card: _card, dbData }: RecentSalesProps) {
+export function RecentSales({ card: _card, dbData, velocity }: RecentSalesProps) {
   if (dbData && dbData.length === 0) {
     return (
       <div className="text-center py-12">
@@ -55,7 +45,8 @@ export function RecentSales({ card: _card, dbData }: RecentSalesProps) {
   const [gradeFilter, setGradeFilter] = useState<string>('All');
 
   const filteredSales = useMemo(() => {
-    return MOCK_SALES.filter((sale) => {
+    const salesData = ((dbData || []) as unknown as Sale[]);
+    return salesData.filter((sale) => {
       if (graderFilter !== 'All' && sale.grader !== graderFilter) return false;
       if (gradeFilter === '10+') {
         return sale.grade === '10' || sale.grade === 'Black Label' || sale.grade === 'NM';
@@ -115,6 +106,9 @@ export function RecentSales({ card: _card, dbData }: RecentSalesProps) {
           </div>
         </div>
       </div>
+
+      {/* Velocity Indicator */}
+      <VelocityIndicator velocity={velocity} />
 
       {/* Table */}
       {filteredSales.length === 0 ? (

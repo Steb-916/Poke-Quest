@@ -13,21 +13,6 @@ import {
 import type { CardMeta } from '@/lib/utils/cardData';
 import { cn } from '@/lib/utils/cn';
 
-const MOCK_PRICE_DATA = [
-  { date: '2025-04', raw: 980, psa10: 2400, bgs10: 2900, bgsBlack: 28000, cgc10: 1800 },
-  { date: '2025-05', raw: 1020, psa10: 2500, bgs10: 3000, bgsBlack: 29500, cgc10: 1850 },
-  { date: '2025-06', raw: 1050, psa10: 2650, bgs10: 3100, bgsBlack: 31000, cgc10: 1900 },
-  { date: '2025-07', raw: 1010, psa10: 2550, bgs10: 3050, bgsBlack: 30500, cgc10: 1870 },
-  { date: '2025-08', raw: 1080, psa10: 2700, bgs10: 3150, bgsBlack: 31500, cgc10: 1950 },
-  { date: '2025-09', raw: 1040, psa10: 2600, bgs10: 3080, bgsBlack: 30800, cgc10: 1920 },
-  { date: '2025-10', raw: 1060, psa10: 2750, bgs10: 3200, bgsBlack: 32000, cgc10: 2000 },
-  { date: '2025-11', raw: 1030, psa10: 2680, bgs10: 3100, bgsBlack: 31200, cgc10: 1980 },
-  { date: '2025-12', raw: 1070, psa10: 2720, bgs10: 3180, bgsBlack: 32500, cgc10: 2050 },
-  { date: '2026-01', raw: 1045, psa10: 2760, bgs10: 3200, bgsBlack: 33000, cgc10: 2080 },
-  { date: '2026-02', raw: 1060, psa10: 2780, bgs10: 3180, bgsBlack: 33200, cgc10: 2090 },
-  { date: '2026-03', raw: 1055, psa10: 2800, bgs10: 3200, bgsBlack: 33600, cgc10: 2100 },
-];
-
 const TIME_RANGES = [
   { id: '1M', months: 1 },
   { id: '3M', months: 3 },
@@ -99,8 +84,9 @@ export function PriceHistory({ card: _card, dbData }: PriceHistoryProps) {
 
   const filteredData = useMemo(() => {
     const range = TIME_RANGES.find((r) => r.id === timeRange);
-    if (!range || range.months === Infinity) return MOCK_PRICE_DATA;
-    return MOCK_PRICE_DATA.slice(-range.months);
+    const data = (dbData || []) as Record<string, unknown>[];
+    if (!range || range.months === Infinity) return data;
+    return data.slice(-range.months);
   }, [timeRange]);
 
   const toggleSeries = (key: string) => {
@@ -120,13 +106,13 @@ export function PriceHistory({ card: _card, dbData }: PriceHistoryProps) {
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         {/* Time Range */}
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {TIME_RANGES.map((range) => (
             <button
               key={range.id}
               onClick={() => setTimeRange(range.id)}
               className={cn(
-                'px-3 py-1 rounded text-xs font-[var(--font-mono)] font-medium transition-all duration-200',
+                'press-scale px-3 py-1 rounded text-xs font-[var(--font-mono)] font-medium',
                 timeRange === range.id
                   ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)]'
                   : 'text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]'

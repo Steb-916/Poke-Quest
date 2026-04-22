@@ -90,7 +90,7 @@ model PopSnapshot {
 
   // Full grade distribution
   total           Int       @default(0)       // Total graded by this company
-  grade10         Int       @default(0)       // Top grade (PSA 10 / BGS 10 Pristine / CGC 10)
+  grade10         Int       @default(0)       // Top grade (PSA 10 / BGS 10 Pristine / sum of CGC 10s)
   blackLabel      Int       @default(0)       // BGS Black Label ONLY (all four subgrades = 10)
   grade95         Int       @default(0)       // 9.5
   grade9          Int       @default(0)       // 9
@@ -98,6 +98,11 @@ model PopSnapshot {
   grade8          Int       @default(0)       // 8
   grade7AndBelow  Int       @default(0)       // 7 and below (combined)
   authentic       Int       @default(0)       // Authentic/Altered (no numeric grade)
+
+  // CGC three-tier grade 10 breakdown (CGC only)
+  cgcPerfect10    Int       @default(0)       // CGC Perfect 10 (highest tier)
+  cgcPristine10   Int       @default(0)       // CGC Pristine 10 (second tier)
+  cgcGemMint10    Int       @default(0)       // CGC Gem Mint 10 (third tier)
 
   createdAt       DateTime  @default(now())
 

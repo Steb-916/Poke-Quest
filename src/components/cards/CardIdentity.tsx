@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { CardMeta } from '@/lib/utils/cardData';
+import { TrendArrow } from '@/components/charts/TrendIndicators';
 
 interface PriceData {
   rawMarket?: number | null;
@@ -22,6 +23,7 @@ interface CardIdentityProps {
   card: CardMeta;
   prices?: PriceData | null;
   ownership?: OwnershipData | null;
+  trends?: Record<string, number | null> | null;
 }
 
 function formatPrice(value: number | null | undefined): string {
@@ -30,13 +32,13 @@ function formatPrice(value: number | null | undefined): string {
   return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function CardIdentity({ card, prices, ownership }: CardIdentityProps) {
+export function CardIdentity({ card, prices, ownership, trends }: CardIdentityProps) {
   const priceRows = [
-    { label: 'Raw NM', value: formatPrice(prices?.rawMarket) },
-    { label: 'PSA 10', value: formatPrice(prices?.psa10) },
-    { label: 'BGS 10', value: formatPrice(prices?.bgs10Pristine) },
-    { label: 'Black Label', value: formatPrice(prices?.bgs10BlackLabel), highlight: true },
-    { label: 'CGC 10', value: formatPrice(prices?.cgc10Perfect) },
+    { label: 'Raw NM', value: formatPrice(prices?.rawMarket), trend: trends?.rawMarket ?? null },
+    { label: 'PSA 10', value: formatPrice(prices?.psa10), trend: trends?.psa10 ?? null },
+    { label: 'BGS 10', value: formatPrice(prices?.bgs10Pristine), trend: trends?.bgs10Pristine ?? null },
+    { label: 'Black Label', value: formatPrice(prices?.bgs10BlackLabel), highlight: true, trend: trends?.bgs10BlackLabel ?? null },
+    { label: 'CGC 10', value: formatPrice(prices?.cgc10Perfect), trend: trends?.cgc10Perfect ?? null },
   ];
 
   const huntText = ownership?.acquired
@@ -87,7 +89,7 @@ export function CardIdentity({ card, prices, ownership }: CardIdentityProps) {
           Current Market
         </h3>
         <div className="space-y-2">
-          {priceRows.map(({ label, value, highlight }) => (
+          {priceRows.map(({ label, value, highlight, trend }) => (
             <div
               key={label}
               className={`flex items-center justify-between py-1 ${
@@ -95,8 +97,11 @@ export function CardIdentity({ card, prices, ownership }: CardIdentityProps) {
               }`}
             >
               <span className="text-sm text-[var(--color-text-secondary)]">{label}</span>
-              <span className="font-[var(--font-mono)] text-sm text-[var(--color-text-primary)]">
-                {value}
+              <span className="flex items-center">
+                <span className="font-[var(--font-mono)] text-sm text-[var(--color-text-primary)]">
+                  {value}
+                </span>
+                <TrendArrow change={trend} />
               </span>
             </div>
           ))}

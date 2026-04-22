@@ -16,12 +16,20 @@ export async function POST(request: Request) {
         continue;
       }
 
+      // For CGC: compute grade10 as sum of three tiers for backward compatibility
+      const cgcPerfect10 = entry.cgcPerfect10 || 0;
+      const cgcPristine10 = entry.cgcPristine10 || 0;
+      const cgcGemMint10 = entry.cgcGemMint10 || 0;
+      const grade10 = entry.grader === 'CGC'
+        ? (entry.grade10 || (cgcPerfect10 + cgcPristine10 + cgcGemMint10))
+        : (entry.grade10 || 0);
+
       const result = await prisma.popSnapshot.create({
         data: {
           cardId: card.id,
           grader: entry.grader,
           total: entry.total || 0,
-          grade10: entry.grade10 || 0,
+          grade10,
           blackLabel: entry.blackLabel || 0,
           grade95: entry.grade95 || 0,
           grade9: entry.grade9 || 0,
@@ -29,6 +37,9 @@ export async function POST(request: Request) {
           grade8: entry.grade8 || 0,
           grade7AndBelow: entry.grade7AndBelow || 0,
           authentic: entry.authentic || 0,
+          cgcPerfect10,
+          cgcPristine10,
+          cgcGemMint10,
         },
       });
 

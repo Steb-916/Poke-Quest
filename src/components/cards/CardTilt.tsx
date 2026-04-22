@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils/cn';
 interface CardTiltProps {
   card: CardMeta;
   index: number;
+  trend?: { changePercent: number; direction: string } | null;
 }
 
-export function CardTilt({ card, index }: CardTiltProps) {
+export function CardTilt({ card, index, trend }: CardTiltProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const { tiltStyle, shimmerStyle, isHovering, handlers } = useCardTilt(cardRef);
 
@@ -28,7 +29,7 @@ export function CardTilt({ card, index }: CardTiltProps) {
       ref={cardRef}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
+      viewport={{ once: true, margin: '-100px' }}
       transition={{
         duration: 0.5,
         delay: staggerDelay,
@@ -70,6 +71,18 @@ export function CardTilt({ card, index }: CardTiltProps) {
             )}
             style={shimmerStyle}
           />
+
+          {/* Trend Indicator (top-right) */}
+          {trend && trend.direction !== 'flat' && (
+            <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded px-1.5 py-0.5 z-10">
+              <span className={cn(
+                'font-[var(--font-mono)] text-[10px]',
+                trend.direction === 'up' ? 'text-[var(--color-accent)]' : 'text-[var(--color-negative)]'
+              )}>
+                {trend.direction === 'up' ? '▲' : '▼'} {trend.changePercent > 0 ? '+' : ''}{trend.changePercent.toFixed(1)}%
+              </span>
+            </div>
+          )}
 
           {/* Card Info Overlay (bottom) */}
           <div

@@ -5,7 +5,6 @@ interface RateLimitConfig {
 }
 
 const LIMITS: Record<string, RateLimitConfig> = {
-  pokemontcg: { service: 'pokemontcg', maxPerDay: 18000 },
   pricetracker: { service: 'pricetracker', maxPerDay: 85 },
   soldcomps: { service: 'soldcomps', maxPerMonth: 22 },
 };

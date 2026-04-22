@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, type RefObject, type CSSProperties } from 'react';
+import { useState, useCallback, useEffect, useRef, type RefObject, type CSSProperties } from 'react';
 
 interface TiltConfig {
   maxTilt?: number;
@@ -25,7 +25,9 @@ export function useCardTilt(
   cardRef: RefObject<HTMLDivElement | null>,
   config?: TiltConfig
 ): CardTiltReturn {
-  const maxTilt = config?.maxTilt ?? 8;
+  // Reduce tilt on mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const maxTilt = isMobile ? Math.min(config?.maxTilt ?? 8, 5) : (config?.maxTilt ?? 8);
   const scaleHover = config?.scaleHover ?? 1.04;
 
   const [isHovering, setIsHovering] = useState(false);
@@ -35,28 +37,24 @@ export function useCardTilt(
   const [mouseYPercent, setMouseYPercent] = useState(50);
 
   const rafRef = useRef<number | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const isTiltingRef = useRef(false);
 
+  // Mouse handlers
   const onMouseEnter = useCallback(() => {
     setIsHovering(true);
   }, []);
 
   const onMouseMove = useCallback((e: React.MouseEvent) => {
     if (!cardRef.current) return;
-
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
     rafRef.current = requestAnimationFrame(() => {
       const rect = cardRef.current!.getBoundingClientRect();
-
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
-
-      const centerX = x - 0.5;
-      const centerY = y - 0.5;
-
-      setTiltX(-centerY * maxTilt);
-      setTiltY(centerX * maxTilt);
-
+      setTiltX(-(y - 0.5) * maxTilt);
+      setTiltY((x - 0.5) * maxTilt);
       setMouseXPercent(x * 100);
       setMouseYPercent(y * 100);
     });
@@ -68,12 +66,67 @@ export function useCardTilt(
     setTiltY(0);
     setMouseXPercent(50);
     setMouseYPercent(50);
-
     if (rafRef.current) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
   }, []);
+
+  // Touch handlers
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      isTiltingRef.current = false;
+      setIsHovering(true);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!cardRef.current || !touchStartRef.current) return;
+      const touch = e.touches[0];
+
+      // Check if moved enough to be a tilt vs a tap
+      const dx = touch.clientX - touchStartRef.current.x;
+      const dy = touch.clientY - touchStartRef.current.y;
+      if (Math.sqrt(dx * dx + dy * dy) > 5) {
+        isTiltingRef.current = true;
+        e.preventDefault(); // Prevent scroll while tilting
+      }
+
+      if (!isTiltingRef.current) return;
+
+      const rect = cardRef.current.getBoundingClientRect();
+      const x = (touch.clientX - rect.left) / rect.width;
+      const y = (touch.clientY - rect.top) / rect.height;
+      setTiltX(-(y - 0.5) * maxTilt);
+      setTiltY((x - 0.5) * maxTilt);
+      setMouseXPercent(x * 100);
+      setMouseYPercent(y * 100);
+    };
+
+    const onTouchEnd = () => {
+      setIsHovering(false);
+      setTiltX(0);
+      setTiltY(0);
+      setMouseXPercent(50);
+      setMouseYPercent(50);
+      touchStartRef.current = null;
+      isTiltingRef.current = false;
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [cardRef, maxTilt]);
 
   const tiltStyle: CSSProperties = {
     transform: `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(${isHovering ? scaleHover : 1})`,

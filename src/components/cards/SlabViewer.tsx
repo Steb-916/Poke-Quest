@@ -200,13 +200,13 @@ interface GraderTabsProps {
 
 function GraderTabs({ active, onChange }: GraderTabsProps) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-1">
       {GRADERS.map((grader) => (
         <button
           key={grader}
           onClick={() => onChange(grader)}
           className={cn(
-            'px-4 py-1.5 rounded-md text-sm font-[var(--font-mono)] font-medium tracking-wide transition-all duration-200 border',
+            'press-scale flex-shrink-0 px-4 py-1.5 rounded-md text-sm font-[var(--font-mono)] font-medium tracking-wide border',
             active === grader
               ? 'bg-[var(--color-accent-dim)] text-[var(--color-accent)] border-[var(--color-accent)]'
               : 'bg-transparent text-[var(--color-text-tertiary)] border-[var(--color-border-default)] hover:text-[var(--color-text-secondary)] hover:border-[var(--color-border-hover)]'

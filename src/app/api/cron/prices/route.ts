@@ -11,12 +11,10 @@ export async function GET(request: Request) {
   try {
     const { prisma } = await import('@/lib/db/prisma');
     const { CARDS } = await import('@/lib/utils/cardData');
-    const { fetchCardData } = await import('@/lib/api/pokemontcg');
+    const { fetchCardPrices } = await import('@/lib/api/pricetracker');
 
     for (const cardMeta of CARDS) {
       try {
-        const tcgData = await fetchCardData(cardMeta.setCode, cardMeta.cardNumber);
-
         const card = await prisma.card.findUnique({
           where: { slug: cardMeta.slug },
         });
@@ -26,21 +24,26 @@ export async function GET(request: Request) {
           continue;
         }
 
-        const prices = tcgData?.tcgplayer?.prices;
-        const holofoil = prices?.holofoil;
+        const priceData = await fetchCardPrices(cardMeta.name, cardMeta.set, cardMeta.cardNumber);
 
-        await prisma.priceSnapshot.create({
-          data: {
-            cardId: card.id,
-            source: 'tcgplayer',
-            rawLow: holofoil?.low ?? null,
-            rawMid: holofoil?.mid ?? null,
-            rawHigh: holofoil?.high ?? null,
-            rawMarket: holofoil?.market ?? null,
-          },
-        });
+        if (priceData) {
+          await prisma.priceSnapshot.create({
+            data: {
+              cardId: card.id,
+              source: 'pricetracker',
+              rawMarket: priceData.rawMarket ?? null,
+              rawLow: priceData.rawLow ?? null,
+              rawMid: priceData.rawMid ?? null,
+              rawHigh: priceData.rawHigh ?? null,
+              psa10: priceData.psa10 ?? null,
+              psa9: priceData.psa9 ?? null,
+            },
+          });
+          results.push({ card: cardMeta.slug, status: 'ok' });
+        } else {
+          results.push({ card: cardMeta.slug, status: 'no-data' });
+        }
 
-        results.push({ card: cardMeta.slug, status: 'ok' });
         await new Promise((r) => setTimeout(r, 200));
       } catch (error) {
         results.push({ card: cardMeta.slug, status: 'error', error: String(error) });

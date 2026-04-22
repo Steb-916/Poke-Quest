@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack --yes)"
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --turbopack --yes)",
+      "Bash(export PATH=\"/e/Telegram Desktop/Alpha/nodejs:$PATH\")",
+      "Bash(npx prisma:*)"
     ]
   }
 }
